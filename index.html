@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Saintness</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Playfair+Display&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: #ddf0dd url('nature.jpg');
+            background-blend-mode: soft-light;
+            font-family: 'Dancing Script','Playfair Display', serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            scroll-behavior: smooth;
+
+        }
+
+        .letter {
+            background: #f4eddb;
+            border: 2px solid #d4b483;
+            padding: 25px;
+            max-width: 650px;
+            width: 100%;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            line-height: 1.8;
+            animation: fadeIn 1.5s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 34px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        a {
+            color: #5a7d7c;
+            text-decoration: none;
+            border-bottom: 1px dashed #5a7d7c;
+        }
+
+        a:hover {
+            opacity: 0.7;
+        }
+
+        .signature {
+            margin-top: 30px;
+            font-family: 'Great Vibes', cursive;
+            font-size: 28px;
+        }
+
+        hr {
+            margin: 50px 0 20px 0;
+            width: 60%;
+            border: none;
+            border-top: 1px solid #ccc;
+        }
+
+        .verse {
+            max-width: 650px;
+            text-align: center;
+            font-style: italic;
+            opacity: 0.85;
+            animation: fadeIn 2s ease;
+            padding: 0 10px
+        }
+
+        .verse h2 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .gif-border {
+            border: 4px solid #d4b483; 
+            padding: 1px;              
+            border-radius: 12px;        
+            display: inline-block;      
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+            margin-top: 15px;          
+        }
+
+        .petal {
+            position: fixed;
+            top: -50px; 
+            width: 50px;
+            height: 50px;
+            background: url('bonquetpurp.png') no-repeat center/contain; 
+            z-index: 1;
+            animation: fall 10s linear infinite;
+        }
+
+        /* randomize positions and timings */
+        .petal:nth-child(1) { left: 15%; width: 25px; animation-delay: 0s; }
+        .petal:nth-child(2) { left: 35%; width: 35px; animation-delay: 1s; }
+        .petal:nth-child(3) { left: 55%; width: 30px; animation-delay: 2s; }
+        .petal:nth-child(4) { left: 75%; width: 28px; animation-delay: 3s; }
+        .petal:nth-child(5) { left: 45%; width: 50px; height: 50px; animation-delay: 3s; }
+        .petal:nth-child(6) { left: 55%; width: 40px; height: 40px; animation-delay: 2.5s; }
+        .petal:nth-child(7) { left: 65%; width: 45px; height: 45px; animation-delay: 1.5s; }
+        .petal:nth-child(8) { left: 75%; width: 50px; height: 50px; animation-delay: 3.5s; }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+    <div class="petal"></div>
+
+    <div class="letter">
+        <h1>Dear Saintness,</h1>
+
+        <p>
+            🎉 SURPRISE! 🎉 Bet you didn’t see this coming, huh? Nawa'y maluwalhating makarating sa iyo ang sulat na ito.
+            I’ve been seeing your notes over the past few days. I don’t really know what you’re completely going through. I just want you to know that I care and do worry about you alot.
+        </p>
+
+        <p>
+            I do hope you’re finding moments to rest and breathe. No matter what might be weighing on you, you are worth more than the negative thoughts in your head,<b>remember that.</b>
+    
+            Even when things feel heavy or uncertain for you, I do trust you can still find little moments to find peace and be happy with yourself. 
+        </p>
+
+        <p>
+            Idk, my head is fried at the time of writing this.<img src="Crying-gif.gif" width="5%">
+        </p>
+
+        <p>
+            Oh yes! Should you should read, 
+            <a href="#verse">Matthew 6:34</a>? Click on the verse and hold onto it:)) It’s just a reminder to not worry about tomorrow and to trust God with each moment instead of carrying the weight of things that haven’t even happened yet. Love yourself the most!
+        </p>
+
+        <p>
+            Please take care of yourself and enjoy your vacation. Always here to annoy you even if you avoid me or ignore me. 🌸
+        </p>
+
+        <p class="signature">— Yours truly, Sol</p>
+      
+        <p>
+            <B>Author's note:</B>Def did not code this because of a REPOST that I saw yesterday;P.
+        </p>
+
+        <p>
+            Press on the image to claim your bouquet<3: <a href="https://digibouquet.net/create-bouquet?b=JTdCJTIyZiUyMiUzQSU1QiUyMmxvdHVzJTIyJTJDJTIyY2FtZWxsaWElMjIlMkMlMjJvcmNoaWQlMjIlMkMlMjJsaWx5JTIyJTJDJTIyZGFpc3klMjIlMkMlMjJ0dWxpcCUyMiUyQyUyMnBlb255JTIyJTJDJTIycm9zZSUyMiU1RCUyQyUyMmclMjIlM0ElMjJncmVlbmVyeTQlMjIlMkMlMjJjJTIyJTNBJTIyZ2FyZGVuLXBhcnR5JTIyJTJDJTIydG8lMjIlM0ElMjJTYWludG5lc3MlMjAlMjIlMkMlMjJmciUyMiUzQSUyMlNvbCUyMCUyMiUyQyUyMm0lMjIlM0ElMjJIYXBweSUyMEdvb2QlMjBGcmlkYXklMjBhbmQlMjBBZHZhbmNlJTIwRWFzdGVyJTIwdG8lMjB5b3UuJTIwSSUyMGhvcGUlMjB0aGlzJTIwc3BlY2lhbCUyMHRpbWUlMjBicmluZ3MlMjB5b3UlMjBwZWFjZSUyMGFuZCUyMGElMjB0aW1lJTIweW91JTIwY2FuJTIwZW5qb3khJTIwTGVtbWUlMjBoZWFyJTIwYWJvdXQlMjB5b3VyJTIwZGF5JTIwYW5kJTIwbm92ZWwlMjBzb21ldGltZSUyMHNvb24uJTIwSG9wZSUyMHlvdSUyMGVuam95JTIwdGhpc3MuJTIyJTJDJTIyYmclMjIlM0ElMjJvY2Vhbi1icmVlemUlMjIlN0Q=" target="_blank">
+            <img src="bonquetpurp.png" width="120px" style="cursor:pointer;">
+        </a>
+        </p>
+
+    </div>
+
+    <hr>
+
+    <div id="verse" class="verse">
+        <h2>Matthew 6:34</h2>
+        <p>
+            “Therefore do not worry about tomorrow, for tomorrow will worry about itself.
+            Each day has enough trouble of its own.”
+        </p>
+
+         <div class="gif-border">
+            <img src="kaori.gif" width="100%" alt="Kaori GIF">
+        </div>
+    </div>
+
+</body>
+</html>
