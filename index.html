@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Letter from the Dark</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel+Decorative:wght@400;700&family=Sorts+Mill+Goudy:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink: #e8dcc8; --ink-dim: #a89880; --ink-faint: #6a5a46;
+  --blood: #8b1a1a; --gold: #c8a84b; --gold-dim: #7a6530;
+  --parchment: #1a120a; --parchment-mid: #241a10;
+  --ember: #d4520a;
+}
+html, body {
+  min-height: 100vh;
+  background: #0d0906;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sorts Mill Goudy', Georgia, serif;
+  overflow-x: hidden;
+}
+
+/* Particles */
+.particles { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.particle {
+  position: absolute; border-radius: 50%; opacity: 0;
+  animation: drift var(--dur) var(--delay) infinite ease-in-out;
+}
+@keyframes drift {
+  0%   { transform: translateY(100vh) translateX(0) scale(0); opacity: 0; }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.15; }
+  100% { transform: translateY(-10vh) translateX(var(--dx)) scale(1.5); opacity: 0; }
+}
+
+/* ── SCENE ── */
+.scene {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 780px;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3rem 1rem;
+}
+
+/* ── ENVELOPE ── */
+.envelope-wrap {
+  position: relative;
+  width: min(480px, 92vw);
+  perspective: 1200px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.envelope {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.6 / 1;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+.envelope-wrap:hover .envelope { transform: scale(1.015); }
+
+/* Envelope body */
+.env-body {
+  position: absolute; inset: 0;
+  background: linear-gradient(160deg, #2a1c0f 0%, #1a1008 60%, #120c06 100%);
+  border: 1px solid var(--gold-dim);
+  box-shadow: 0 20px 80px rgba(0,0,0,0.8), 0 0 40px rgba(200,168,75,0.07);
+  overflow: hidden;
+}
+
+/* Diamond fold lines */
+.env-body::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(to bottom-right, transparent calc(50% - 0.5px), rgba(200,168,75,0.15) calc(50% - 0.5px), rgba(200,168,75,0.15) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom-left,  transparent calc(50% - 0.5px), rgba(200,168,75,0.15) calc(50% - 0.5px), rgba(200,168,75,0.15) calc(50% + 0.5px), transparent calc(50% + 0.5px));
+  pointer-events: none;
+}
+
+/* Top flap */
+.env-flap {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 50%;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+.env-flap-face {
+  position: absolute; inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(170deg, #3a260f 0%, #201408 100%);
+  border-bottom: none;
+  backface-visibility: hidden;
+}
+.env-flap-face::after {
+  content: '';
+  position: absolute; inset: 0;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  background: linear-gradient(to bottom, rgba(200,168,75,0.08), transparent 70%);
+}
+/* flap fold line */
+.env-flap-fold {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: rgba(200,168,75,0.2);
+}
+
+/* Open state */
+.envelope-wrap.open .env-flap {
+  transform: rotateX(-180deg);
+}
+
+/* Letter peeking out */
+.letter-peek {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 88%;
+  background: #f5ead4;
+  border: 1px solid #c8a84b55;
+  border-bottom: none;
+  transition: bottom 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s,
+              height 1.1s cubic-bezier(0.4, 0, 0.2, 1) 0.3s;
+  height: 0;
+  overflow: hidden;
+  z-index: 5;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+}
+.envelope-wrap.open .letter-peek {
+  height: 92%;
+  bottom: 0;
+}
+
+/* Letter peek inner hint */
+.letter-peek-inner {
+  padding: 14px 16px 0;
+  opacity: 0;
+  transition: opacity 0.4s ease 1.1s;
+  text-align: center;
+}
+.envelope-wrap.open .letter-peek-inner { opacity: 1; }
+.letter-peek-inner span {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.5rem;
+  letter-spacing: 0.2em;
+  color: #7a6530;
+  text-transform: uppercase;
+}
+
+/* Seal */
+.seal-container {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  transition: opacity 0.5s ease 0.1s, transform 0.5s ease 0.1s;
+}
+.envelope-wrap.open .seal-container {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.6);
+  pointer-events: none;
+}
+.seal-img {
+  width: 130px; height: 130px;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 4px 14px rgba(139,26,26,0.6)) drop-shadow(0 0 20px rgba(200,168,75,0.3)) brightness(0.92);
+  transition: filter 0.3s ease, transform 0.3s ease;
+}
+.envelope-wrap:hover .seal-img {
+  filter: drop-shadow(0 6px 20px rgba(212,82,10,0.7)) drop-shadow(0 0 30px rgba(200,168,75,0.5)) brightness(1.05);
+  transform: scale(1.05) rotate(3deg);
+}
+
+/* Hint text */
+.hint {
+  margin-top: 1.8rem;
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ink-faint);
+  text-align: center;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  transition: opacity 0.4s;
+  animation: fadeUp 1.5s 1s ease-out both;
+}
+.envelope-wrap.open + .hint { opacity: 0; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 0.7; transform: translateY(0); }
+}
+
+/* ── FULL LETTER ── */
+.letter-full {
+  width: min(680px, 96vw);
+  margin-top: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 1.2s cubic-bezier(0.4,0,0.2,1) 0.8s,
+              opacity 0.8s ease 1.2s,
+              margin-top 0.6s ease 0.8s;
+}
+.letter-full.visible {
+  max-height: 4000px;
+  opacity: 1;
+  margin-top: 2.5rem;
+}
+
+.letter-card {
+  background: var(--parchment);
+  border: 1px solid var(--gold-dim);
+  padding: 3.5rem 4rem 4rem;
+  box-shadow: 0 0 80px rgba(139,26,26,0.15), 0 0 30px rgba(200,168,75,0.08), inset 0 0 60px rgba(0,0,0,0.6);
+  animation: flicker 6s 1s infinite;
+  position: relative;
+}
+.letter-card::before { content: '✦'; position: absolute; top: 1rem; left: 1.4rem; color: var(--gold-dim); font-size: 1.4rem; opacity: 0.5; }
+.letter-card::after  { content: '✦'; position: absolute; bottom: 1rem; right: 1.4rem; color: var(--gold-dim); font-size: 1.4rem; opacity: 0.5; }
+.corner-bl::before { content: '✦'; position: absolute; bottom: 1rem; left: 1.4rem; color: var(--gold-dim); font-size: 1.4rem; opacity: 0.5; }
+.corner-tr::after  { content: '✦'; position: absolute; top: 1rem; right: 1.4rem; color: var(--gold-dim); font-size: 1.4rem; opacity: 0.5; }
+
+@keyframes flicker {
+  0%,100% { box-shadow: 0 0 80px rgba(139,26,26,0.15), 0 0 30px rgba(200,168,75,0.08), inset 0 0 60px rgba(0,0,0,0.6); }
+  33%      { box-shadow: 0 0 100px rgba(139,26,26,0.22), 0 0 40px rgba(200,168,75,0.12), inset 0 0 60px rgba(0,0,0,0.6); }
+  66%      { box-shadow: 0 0 70px rgba(139,26,26,0.10), 0 0 20px rgba(200,168,75,0.05), inset 0 0 60px rgba(0,0,0,0.6); }
+}
+
+.divider { display: flex; align-items: center; gap: 1rem; margin: 2rem 0; opacity: 0.4; }
+.divider-line { flex: 1; height: 0.5px; background: var(--gold); }
+.divider-glyph { color: var(--gold); font-size: 1rem; }
+
+.heading {
+  font-family: 'Cinzel Decorative', serif; font-size: 1.35rem;
+  color: var(--gold); text-align: center; letter-spacing: 0.06em; line-height: 1.5;
+  text-shadow: 0 0 20px rgba(200,168,75,0.4); margin-bottom: 0.4rem;
+}
+.subheading {
+  font-family: 'IM Fell English', serif; font-style: italic;
+  font-size: 0.92rem; color: var(--ink-dim); text-align: center; letter-spacing: 0.04em;
+}
+.body-text { color: var(--ink); font-size: 1.08rem; line-height: 1.85; font-family: 'IM Fell English', serif; }
+.body-text p { margin-bottom: 1.4rem; }
+.drop-cap::first-letter {
+  font-family: 'Cinzel Decorative', serif; font-size: 4.2rem; line-height: 0.75;
+  float: left; margin-right: 0.12em; margin-top: 0.08em;
+  color: var(--blood); text-shadow: 0 0 15px rgba(139,26,26,0.6);
+}
+em { font-style: italic; color: var(--gold); }
+strong { font-weight: normal; color: var(--blood); font-style: italic; }
+.glow-word { color: var(--gold); cursor: default; transition: text-shadow 0.3s; }
+.glow-word:hover { text-shadow: 0 0 12px rgba(200,168,75,0.8); }
+
+.signature { margin-top: 2.5rem; text-align: right; }
+.signature-name { font-family: 'Cinzel Decorative', serif; font-size: 1rem; color: var(--gold); letter-spacing: 0.08em; display: block; }
+.signature-title { font-family: 'IM Fell English', serif; font-style: italic; font-size: 1rem; color: var(--ink-faint); display: block; margin-top: 0.2rem; }
+
+@media (max-width: 600px) {
+  .letter-card { padding: 2rem 1.6rem 2.5rem; }
+  .heading { font-size: 1rem; }
+  .body-text { font-size: 0.98rem; }
+  .drop-cap::first-letter { font-size: 3rem; }
+  .seal-img { width: 82px; height: 82px; }
+}
+</style>
+</head>
+<body>
+
+<div class="particles" aria-hidden="true" id="particles"></div>
+
+<div class="scene">
+
+  <!-- ENVELOPE -->
+  <div class="envelope-wrap" id="envWrap" role="button" tabindex="0" aria-label="Open the letter" title="Press to open">
+    <div class="envelope">
+      <div class="env-body"></div>
+
+      <!-- Letter peeking -->
+      <div class="letter-peek">
+        <div class="letter-peek-inner"><span>For your eyes only</span></div>
+      </div>
+
+      <!-- Flap -->
+      <div class="env-flap">
+        <div class="env-flap-face"></div>
+        <div class="env-flap-fold"></div>
+      </div>
+
+      <!-- Wax seal -->
+      <div class="seal-container">
+        <img class="seal-img" src="Wax_Seal_Sol.png" alt="Wax seal" />
+      </div>
+    </div>
+  </div>
+
+  <p class="hint" id="hint">— press the seal to open —</p>
+
+  <!-- FULL LETTER -->
+  <div class="letter-full" id="letterFull">
+    <div class="letter-card corner-bl corner-tr">
+      <h1 class="heading">To the One Who Haunts My Waking Hours</h1>
+      <p class="subheading">A letter penned by candlelight, in the hour before the ravens stir</p>
+
+      <div class="divider" aria-hidden="true">
+        <span class="divider-line"></span><span class="divider-glyph">⸸</span><span class="divider-line"></span>
+      </div>
+
+      <div class="body-text">
+        <p class="drop-cap">Greetings <span class="glow-word">my beloved</span>, this lettter is abit different from the other oness. Do you like how it looks? Do let me knoww. You see, I have tried, a thousand times over, to write this letter, and a thousand times my head spiralled out of control before the words could find their shape. How does one summarize such an amazing person in a sentence? How does one press the feeling of <em>you</em> flat against the page?</p>
+        <p><strong>Your messages?</strong>, they will forever be the highlight of my day, whether it be good or bad. Every single moment with you is a memory I just want to hold onto forever. You're like my own personal insipration, always pushing me to go after my dreams like you do with yours. Pursue your passion for Law! I will be supporting you all the way! And I will listen to your long rants about history if you ever want me too. HAHAHA</p>
+        <p>I cannot offer you alot or gift you the things you need, but. . .I will offer you atleast <em>my words written upon this letter</em>. Whatever storms comes howling, whatever curses the jealous heavens see fit to cast, I will stand beside you, and I will <span class="glow-word">never yield</span>. For you're far too beautiful that I'm always at a loss for words.</p>
+        <p>Also, if those painful thoughts and heavy emotions still linger in your mind every so often, please try to focus on yourself. You’re far too pretty for those kinds of thoughts to be weighing you down. You’re really out here being stressed and still managing to be this adorable? That should be illegal. Though seriously, please take care of yourself, baby.
+        And. . . It honestly makes my heart feel heavy when I see your posts or reposts and realize you’re going through something, and all I can do is wait and hope it gets better for you. But, please do keep the words these words whenever you think about them, <a href="#verse" class="verse-link" onclick="openVerse(event)">Jeremiah 29:11 ↓</a></p>
+        <p>So, as I finish this letter after so many hours, just know that you're so much more than I could ever put into words. You are, against all odds and unpleasant memories, the most wonderful person there ever is. Like a single <strong>rose</strong> blooming in a graveyard. </p>
+        <p>Then again, you would know that already, bae. Enjoy the rest of your day, mwahh. Mahal na mahal na mahal na mahal na mahal kita sobra sobra bhebhe ko. </p>
+      </div>
+
+      <div class="divider" aria-hidden="true">
+        <span class="divider-line"></span><span class="divider-glyph">☽</span><span class="divider-line"></span>
+      </div>
+
+      <div class="signature">
+        <span class="signature-name">Yours Sincerely, </span>
+        <span class="signature-title">Sol</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIBLE VERSE FOLDER -->
+  <div class="folder-wrap" id="verse">
+    <div class="folder" id="folderBox" role="button" tabindex="0" aria-label="Open Jeremiah 29:11" title="Open the verse">
+      <div class="folder-tab">
+        <span class="folder-tab-label">Jeremiah 29:11</span>
+      </div>
+      <div class="folder-body">
+        <div class="folder-closed-face">
+          <span class="folder-hint">— open me —</span>
+        </div>
+      </div>
+    </div>
+    <div class="verse-content" id="verseContent">
+      <div class="verse-card">
+        <div class="verse-ornament" aria-hidden="true">✦ ✦ ✦</div>
+        <p class="verse-ref">Jeremiah 29 : 11</p>
+        <blockquote class="verse-text">
+          "For I know the plans I have for you," declares the Lord, "plans to prosper you and not to harm you, plans to give you hope and a future."
+        </blockquote>
+        <div class="verse-ornament" aria-hidden="true">✦ ✦ ✦</div>
+        <p class="verse-note">Hold onto this, always. 🤍</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOWERS SECTION -->
+  <div class="flowers-wrap" id="flowersSection">
+    <div class="flowers-card">
+      <div class="divider" aria-hidden="true" style="margin-bottom:1.4rem;">
+        <span class="divider-line"></span><span class="divider-glyph">✿</span><span class="divider-line"></span>
+      </div>
+      <p class="flowers-label">A little something for you 🌸</p>
+      <!-- ↓ Paste your link between the quotes below ↓ -->
+      <a class="flowers-link" href="https://digibouquet.vercel.app/bouquet/a157aa57-6f80-463e-965b-2c3675734957" target="_blank" rel="noopener">
+        Here's some flowers for you ❀
+      </a>
+      <div class="divider" aria-hidden="true" style="margin-top:1.4rem;">
+        <span class="divider-line"></span><span class="divider-glyph">✿</span><span class="divider-line"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<style>
+/* ── VERSE LINK IN LETTER ── */
+.verse-link {
+  color: var(--gold);
+  font-style: italic;
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold-dim);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.verse-link:hover { color: #fff; border-color: #fff; }
+
+/* ── FOLDER WRAP ── */
+.folder-wrap {
+  width: min(540px, 96vw);
+  margin-top: 2.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.folder-wrap.visible { opacity: 1; transform: translateY(0); }
+
+/* ── FOLDER ── */
+.folder {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+}
+.folder-tab {
+  display: inline-block;
+  background: linear-gradient(135deg, #2e1d0c, #1e1208);
+  border: 1px solid var(--gold-dim);
+  border-bottom: none;
+  padding: 0.45rem 1.4rem 0.55rem;
+  border-radius: 6px 6px 0 0;
+  margin-left: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+.folder-tab-label {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.72rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+}
+.folder-body {
+  background: linear-gradient(160deg, #2a1c0f, #1a1008);
+  border: 1px solid var(--gold-dim);
+  border-radius: 0 6px 6px 6px;
+  padding: 1.4rem 2rem;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 20px rgba(200,168,75,0.05);
+  transition: box-shadow 0.3s;
+}
+.folder:hover .folder-body {
+  box-shadow: 0 10px 50px rgba(0,0,0,0.7), 0 0 30px rgba(200,168,75,0.1);
+}
+.folder-closed-face {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 48px;
+}
+.folder-hint {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+.folder:hover .folder-hint { opacity: 1; color: var(--ink-dim); }
+.folder.opened .folder-body { display: none; }
+
+/* ── VERSE CONTENT ── */
+.verse-content {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height 0.9s cubic-bezier(0.4,0,0.2,1), opacity 0.6s ease 0.3s;
+}
+.verse-content.open { max-height: 600px; opacity: 1; }
+
+.verse-card {
+  background: var(--parchment);
+  border: 1px solid var(--gold-dim);
+  border-top: none;
+  padding: 2.2rem 2.5rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.4);
+}
+.verse-ornament {
+  color: var(--gold-dim);
+  font-size: 0.7rem;
+  letter-spacing: 0.5em;
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+.verse-ref {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.8rem;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 1.2rem;
+  text-shadow: 0 0 12px rgba(200,168,75,0.3);
+}
+.verse-text {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 1.12rem;
+  line-height: 1.9;
+  color: var(--ink);
+  border-left: 2px solid var(--gold-dim);
+  padding-left: 1.4rem;
+  text-align: left;
+  margin: 0 0 1.2rem;
+}
+.verse-note {
+  font-family: 'IM Fell English', serif;
+  font-size: 0.9rem;
+  color: var(--ink-dim);
+  font-style: italic;
+  margin-top: 1rem;
+}
+
+/* ── FLOWERS ── */
+.flowers-wrap {
+  width: min(540px, 96vw);
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
+}
+.flowers-wrap.visible { opacity: 1; transform: translateY(0); }
+
+.flowers-card {
+  background: var(--parchment);
+  border: 1px solid var(--gold-dim);
+  padding: 1.8rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+.flowers-label {
+  font-family: 'IM Fell English', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--ink-faint);
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+.flowers-link {
+  display: inline-block;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.82rem;
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  border: 1px solid var(--gold-dim);
+  padding: 0.65rem 1.6rem;
+  border-radius: 2px;
+  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+.flowers-link:hover {
+  background: var(--gold-dim);
+  color: var(--parchment);
+  box-shadow: 0 0 20px rgba(200,168,75,0.3);
+}
+/* highlight placeholder link visually */
+.flowers-link[href="YOUR_LINK_HERE"] {
+  border-style: dashed;
+  opacity: 0.6;
+  cursor: default;
+}
+</style>
+
+<script>
+const wrap = document.getElementById('envWrap');
+const hint = document.getElementById('hint');
+const letterFull = document.getElementById('letterFull');
+let opened = false;
+
+function openLetter() {
+  if (opened) return;
+  opened = true;
+  wrap.classList.add('open');
+  hint.style.opacity = '0';
+  hint.style.pointerEvents = 'none';
+  setTimeout(() => {
+    wrap.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    wrap.style.opacity = '0';
+    wrap.style.transform = 'scale(0.92) translateY(-10px)';
+  }, 800);
+  setTimeout(() => {
+    wrap.style.display = 'none';
+    hint.style.display = 'none';
+    letterFull.classList.add('visible');
+    setTimeout(() => {
+      folderWrap.classList.add('visible');
+      flowersWrap.classList.add('visible');
+    }, 1400);
+  }, 1400);
+}
+
+wrap.addEventListener('click', openLetter);
+wrap.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openLetter(); });
+
+// Folder / verse
+const folderBox = document.getElementById('folderBox');
+const verseContent = document.getElementById('verseContent');
+const folderWrap = document.getElementById('verse');
+const flowersWrap = document.getElementById('flowersSection');
+
+function openVerse(e) {
+  if (e) e.preventDefault();
+  // reveal folder section first
+  folderWrap.classList.add('visible');
+  flowersWrap.classList.add('visible');
+  // scroll to it
+  setTimeout(() => {
+    folderWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+}
+
+function toggleFolder() {
+  if (folderBox.classList.contains('opened')) return;
+  folderBox.classList.add('opened');
+  verseContent.classList.add('open');
+}
+
+folderBox.addEventListener('click', toggleFolder);
+folderBox.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') toggleFolder(); });
+
+// Also reveal flowers when letter is shown
+const origOpenLetter = openLetter;
+
+
+
+// Particles
+const p = document.getElementById('particles');
+for (let i = 0; i < 35; i++) {
+  const el = document.createElement('div');
+  el.className = 'particle';
+  const size = 1 + Math.random() * 2.5;
+  el.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${size}px;--dur:${4+Math.random()*9}s;--delay:${Math.random()*12}s;--dx:${(Math.random()-.5)*140}px;background:${Math.random()>.5?'#c8a84b':'#d4520a'};`;
+  p.appendChild(el);
+}
+</script>
+</body>
+</html>
